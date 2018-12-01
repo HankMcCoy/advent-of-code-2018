@@ -8,7 +8,21 @@ defmodule Day1 do
       ...> -2240
       ...> -148
       ...> """)
-      2500
+      {:ok, 2500}
+
+      iex> Day1.run("""
+      ...> +1
+      ...> +1
+      ...> -1
+      ...> """)
+      {:ok, 1}
+
+      iex> Day1.run("""
+      ...> +1
+      ...> +1
+      ...> +1
+      ...> """)
+      {:error, "No repeated frequency found"}
   |
   def run(input \\ get_input()) do
     freqs = input |> get_frequency_deltas() |> convert_deltas_to_freqs()
@@ -44,8 +58,8 @@ defmodule Day1 do
 
   def get_earliest_repeated_frequency([], _cycle, _start_idx, earliest_repeat) do
     case earliest_repeat do
-      nil -> raise "No repeated frequency found!"
-      %{freq: freq} -> freq
+      nil -> {:error, "No repeated frequency found"}
+      %{freq: freq} -> {:ok, freq}
     end
   end
 
