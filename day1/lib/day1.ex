@@ -3,7 +3,7 @@ defmodule Day1 do
   Run the exercise.
 
   ## Examples
-      iex> Day1.run(~S"""
+      iex> Day1.run("""
       ...> +2500
       ...> -2240
       ...> -148
