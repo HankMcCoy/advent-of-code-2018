@@ -46,8 +46,7 @@ defmodule Day1 do
 
           {collision, _} ->
             cond do
-              collision.num_cycles < acc.num_cycles -> collision
-              collision.num_cycles == acc.num_cycles and collision.idx < acc.idx -> collision
+              {collision.num_cycles, collision.idx} < {acc.num_cycles, acc.idx} -> collision
               true -> acc
             end
         end
