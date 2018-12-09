@@ -29,7 +29,6 @@
       nil
       (nth coords (:idx (first by-dist))))))
 
-;(defn get-bound [get-coord-part compare coords] )
 (defn get-bounds [coords]
   (let [coords-by-x (sort-by :x coords)
         coords-by-y (sort-by :y coords)]
@@ -38,28 +37,60 @@
 
 (defn get-area-size [cur-coord coords bounds])
 
-(defn part1 []
+(defn is-on-edge
+  [{x :x, y :y} [{first-x :x, first-y :y} {last-x :x, last-y :y}]]
+  (or (= x first-x) (= x last-x) (= y first-y) (= y last-y)))
+
+(defn get-grid-coords [coords bounds]
+  (let [[{first-x :x, first-y :y} {last-x :x, last-y :y}] bounds]
+    (for [y (range first-y (inc last-y))
+          x (range first-x (inc last-x))]
+      {:x x, :y y})))
+
+(defn get-loc-counts [locs]
   (let
-   [coords (get-coords)
-    bounds (get-bounds coords)]
-    bounds))
+   [bounds (get-bounds locs)
+    grid-points (get-grid-coords locs bounds)]
+    (loop [[cur-point & rest] grid-points
+           bad-locs #{}
+           loc-counts {}]
+      (println cur-point)
+      (if
+       (nil? cur-point)
+        loc-counts
+        (let [nearest-loc (get-closest cur-point locs)]
+          (cond
+            (nil? nearest-loc) (recur rest bad-locs loc-counts)
+            (is-on-edge cur-point bounds) (recur rest (conj bad-locs nearest-loc) loc-counts)
+            :else (recur rest bad-locs (update loc-counts nearest-loc #(+ 1 (or % 0))))))))))
+
+(defn part1 []
+  (->>
+   (get-loc-counts (get-coords))
+   (sort-by second)
+   (reverse)
+   (first)))
+
+; For every coord:
+  ; Figure out what the nearest point is
+  ; If the cur coord is on the edge of the map
+  ;   Disqualify that coord
+  ; Otherwise
+  ;   Increment the count, if the coord isn't disqualified
+
 
 (defn print-board []
-  (println "TEST")
   (let [coords (get-coords)
         bounds (get-bounds coords)
-        first-x (:x (first bounds))
-        first-y (:y (first bounds))
-        last-x (:x (last bounds))
-        last-y (:y (last bounds))]
+        [_ {last-x :x}] bounds
+        grid-coords (get-grid-coords coords bounds)]
     (apply str
-           (for [y (range first-y (inc last-y))
-                 x (range first-x (inc last-x))]
+           (for [{x :x, y :y} grid-coords]
              (let [px (if (some #(= (point x y) %) coords) "X" ".")]
                (if (= x last-x) (str px "\n") px))))))
 
 ;(println (contains? (get-coords) (point 279 84)))
-(println (print-board))
+(println (part1))
 ;(println (part1))
 ;(defn part1 [] (get-coords))
 ;(defn part2 [] "fail")
