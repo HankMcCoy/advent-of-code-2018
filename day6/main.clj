@@ -54,7 +54,6 @@
     (loop [[cur-point & rest] grid-points
            bad-locs #{}
            loc-counts {}]
-      (println cur-point)
       (if
        (nil? cur-point)
         loc-counts
@@ -71,13 +70,23 @@
    (reverse)
    (first)))
 
-; For every coord:
-  ; Figure out what the nearest point is
-  ; If the cur coord is on the edge of the map
-  ;   Disqualify that coord
-  ; Otherwise
-  ;   Increment the count, if the coord isn't disqualified
+(defn get-total-manhattan
+  [point locs]
+  (reduce
+   (fn [dist loc] (+ dist (get-manhattan point loc)))
+   0
+   locs))
 
+(defn part2 []
+  (let
+   [locs (get-coords)
+    bounds (get-bounds locs)
+    grid-points (get-grid-coords locs bounds)]
+    (->>
+     grid-points
+     (map #(hash-map :point %, :dist (get-total-manhattan % locs)))
+     (filter #(< (:dist %) 10000))
+     (count))))
 
 (defn print-board []
   (let [coords (get-coords)
@@ -89,11 +98,8 @@
              (let [px (if (some #(= (point x y) %) coords) "X" ".")]
                (if (= x last-x) (str px "\n") px))))))
 
-;(println (contains? (get-coords) (point 279 84)))
+(println "Part 1:")
 (println (part1))
-;(println (part1))
-;(defn part1 [] (get-coords))
-;(defn part2 [] "fail")
 
-;(println (part1))
-;(println (part2))
+(println "Part 2:")
+(println (part2))
